@@ -1,30 +1,859 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Index</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-    }
-    a {
-      font-size: 24px;
-      text-decoration: none;
-      color: white;
-      background-color: #e63946;
-      padding: 15px 30px;
-      border-radius: 8px;
-    }
-    a:hover {
-      background-color: #d62828;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Malkin, Momos? 🥟❤️</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink: #ffd6e8;
+    --pink-deep: #ff9ebb;
+    --peach: #ffe6d1;
+    --cream: #fff8f0;
+    --lavender: #e9defc;
+    --white: #ffffff;
+    --ink: #6b4c57;
+    --heart: #ff6f91;
+    --gold: #ffd08a;
+    --shadow: rgba(107, 76, 87, 0.18);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0; padding:0; width:100%; height:100%;
+    overflow-x:hidden;
+    background: linear-gradient(135deg, var(--cream), var(--peach) 40%, var(--pink) 75%, var(--lavender));
+    background-size: 300% 300%;
+    animation: bgDrift 18s ease-in-out infinite;
+    font-family: 'Nunito', sans-serif;
+    color: var(--ink);
+    cursor: default;
+  }
+
+  @keyframes bgDrift{
+    0%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
+  }
+
+  /* Paw cursor on desktop */
+  @media (hover:hover) and (pointer:fine){
+    body, button, a { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g fill="%23ff6f91" opacity="0.9"><ellipse cx="16" cy="22" rx="8" ry="6.5"/><ellipse cx="7" cy="12" rx="3" ry="4"/><ellipse cx="14" cy="7" rx="3" ry="4"/><ellipse cx="20" cy="7" rx="3" ry="4"/><ellipse cx="26" cy="12" rx="3" ry="4"/></g></svg>') 16 16, auto;
+  }
+  }
+
+  .stage{
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    width:100%;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content: center;
+    padding: 24px 16px 48px;
+    overflow: hidden;
+  }
+
+  /* Ambient canvas layers */
+  #bg-canvas, #fx-canvas{
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; z-index: 1;
+  }
+  #fx-canvas{ z-index: 30; }
+
+  .paw-trail{
+    position: fixed; pointer-events:none; z-index: 5;
+    font-size: 16px;
+    animation: pawFade 0.9s ease-out forwards;
+    user-select:none;
+  }
+  @keyframes pawFade{
+    0%{ opacity:0.55; transform: scale(1) rotate(var(--rot,0deg)); }
+    100%{ opacity:0; transform: scale(1.3) rotate(var(--rot,0deg)) translateY(6px); }
+  }
+
+  .floating-heart{
+    position: fixed; bottom:-40px; pointer-events:none; z-index: 4;
+    animation-name: floatUp;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+  }
+  @keyframes floatUp{
+    0%{ transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    10%{ opacity: 0.9; }
+    100%{ transform: translateY(-110vh) translateX(var(--drift, 20px)) rotate(var(--spin, 25deg)); opacity: 0; }
+  }
+
+  .card{
+    position: relative;
+    z-index: 10;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 32px;
+    padding: 36px 28px 32px;
+    max-width: 560px;
+    width: 100%;
+    box-shadow: 0 20px 60px var(--shadow), 0 2px 8px rgba(107,76,87,0.08);
+    text-align: center;
+    overflow: visible;
+  }
+
+  .cat-wrap{
+    width: min(260px, 60vw);
+    height: min(260px, 60vw);
+    margin: 0 auto 8px;
+    position: relative;
+    animation: catBounce 3.2s ease-in-out infinite;
+  }
+  @keyframes catBounce{
+    0%, 100%{ transform: translateY(0); }
+    50%{ transform: translateY(-10px); }
+  }
+  .cat-wrap.celebrating{ animation: catDance 0.7s ease-in-out infinite; }
+  @keyframes catDance{
+    0%, 100%{ transform: translateY(0) rotate(-4deg); }
+    50%{ transform: translateY(-14px) rotate(4deg); }
+  }
+
+  #catSvg{ width:100%; height:100%; overflow: visible; }
+
+  .ear{ transform-origin: center bottom; animation: earWiggle 4.5s ease-in-out infinite; }
+  .ear.right{ animation-delay: 0.15s; }
+  @keyframes earWiggle{
+    0%, 85%, 100%{ transform: rotate(0deg); }
+    90%{ transform: rotate(-8deg); }
+    95%{ transform: rotate(6deg); }
+  }
+
+  .tail{ transform-origin: right center; animation: tailSwish 2.6s ease-in-out infinite; }
+  @keyframes tailSwish{
+    0%, 100%{ transform: rotate(-6deg); }
+    50%{ transform: rotate(10deg); }
+  }
+
+  .eye{ animation: blink 5.5s ease-in-out infinite; transform-origin: center; }
+  .eye.right{ animation-delay: 0.05s; }
+  @keyframes blink{
+    0%, 92%, 100%{ transform: scaleY(1); }
+    95%{ transform: scaleY(0.08); }
+  }
+
+  .tear{ opacity:0; }
+  .tear.show{ opacity:1; animation: tearFall 1.8s ease-in infinite; }
+  @keyframes tearFall{
+    0%{ transform: translateY(0); opacity: 0; }
+    15%{ opacity: 1; }
+    100%{ transform: translateY(22px); opacity: 0; }
+  }
+
+  .sparkle{ opacity:0; }
+  .sparkle.show{ opacity:1; animation: sparkleTwinkle 1.2s ease-in-out infinite; }
+  @keyframes sparkleTwinkle{
+    0%, 100%{ opacity: 0.3; transform: scale(0.8); }
+    50%{ opacity: 1; transform: scale(1.15); }
+  }
+
+  h1.headline{
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.35rem, 5vw, 2rem);
+    line-height: 1.35;
+    margin: 8px 0 4px;
+    color: var(--ink);
+    text-shadow: 0 2px 0 rgba(255,255,255,0.6);
+    transition: opacity 0.35s ease;
+  }
+
+  p.sub{
+    font-size: clamp(0.95rem, 3vw, 1.05rem);
+    font-weight: 700;
+    color: #a15a72;
+    margin: 0 0 22px;
+  }
+
+  .btn-row{
+    display:flex;
+    gap: 18px;
+    justify-content:center;
+    align-items:center;
+    position: relative;
+    min-height: 74px;
+    flex-wrap: nowrap;
+  }
+
+  button.big-btn{
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border: none;
+    border-radius: 999px;
+    padding: 16px 30px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease, font-size 0.35s ease, padding 0.35s ease;
+    box-shadow: 0 10px 24px rgba(255,111,145,0.35), inset 0 -3px 0 rgba(0,0,0,0.08), inset 0 2px 0 rgba(255,255,255,0.5);
+    overflow: hidden;
+  }
+
+  #yesBtn{
+    background: linear-gradient(160deg, #ff9ebb, var(--heart));
+    color: white;
+    z-index: 12;
+  }
+  #yesBtn:hover{ transform: scale(1.08); }
+  #yesBtn:active{ transform: scale(0.97); }
+
+  #noBtn{
+    background: linear-gradient(160deg, #fff, var(--lavender));
+    color: var(--ink);
+    box-shadow: 0 8px 18px rgba(107,76,87,0.18), inset 0 -3px 0 rgba(0,0,0,0.05);
+    position: fixed;
+    z-index: 13;
+    transition: left 0.35s cubic-bezier(.22,1,.36,1), top 0.35s cubic-bezier(.22,1,.36,1), transform 0.2s ease;
+  }
+  #noBtn.static{ position: relative; left:auto !important; top:auto !important; }
+
+  .ripple{
+    position:absolute; border-radius:50%; background: rgba(255,255,255,0.6);
+    transform: scale(0); animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events:none;
+  }
+  @keyframes rippleAnim{ to{ transform: scale(3); opacity:0; } }
+
+  /* Celebration */
+  .celebrate-heading{
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.1rem, 9vw, 3.4rem);
+    background: linear-gradient(90deg, var(--heart), var(--gold), var(--heart));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 4px 0 6px;
+    animation: heartPulse 1s ease-in-out infinite;
+  }
+  @keyframes heartPulse{
+    0%, 100%{ transform: scale(1); }
+    50%{ transform: scale(1.06); }
+  }
+
+  .celebrate-sub{
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    font-weight: 500;
+    color: #a15a72;
+    margin-bottom: 6px;
+  }
+
+  .music-btn{
+    margin-top: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    background: var(--white);
+    border: 2px solid var(--pink-deep);
+    color: var(--heart);
+    padding: 10px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+  .music-btn:hover{ transform: scale(1.05); background: var(--pink); }
+
+  .hidden{ display:none !important; }
+  .fade-out{ animation: fadeOutDown 0.45s ease forwards; }
+  @keyframes fadeOutDown{ to{ opacity:0; transform: translateY(14px); } }
+  .fade-in{ animation: fadeInUp 0.5s ease both; }
+  @keyframes fadeInUp{ from{ opacity:0; transform: translateY(16px);} to{opacity:1; transform:translateY(0);} }
+
+  footer.tiny{
+    position: relative; z-index: 10;
+    margin-top: 18px;
+    font-size: 0.78rem;
+    color: #b98298;
+    opacity: 0.8;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  @media (max-width: 420px){
+    .btn-row{ gap: 12px; }
+    button.big-btn{ padding: 14px 22px; font-size: 0.95rem; }
+    .card{ padding: 28px 18px 26px; border-radius: 26px; }
+  }
+</style>
 </head>
 <body>
-  <a href="momos_date.html">Click Me</a>
+
+<canvas id="bg-canvas"></canvas>
+<canvas id="fx-canvas"></canvas>
+
+<div class="stage">
+  <div class="card" id="mainCard">
+
+    <div class="cat-wrap" id="catWrap">
+      <svg id="catSvg" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+        <!-- tail -->
+        <path class="tail" d="M200 190 Q235 175 225 140" stroke="#f3b6c9" stroke-width="14" fill="none" stroke-linecap="round"/>
+
+        <!-- body -->
+        <ellipse cx="120" cy="185" rx="70" ry="45" fill="#fff0f5" stroke="#f0c6d6" stroke-width="2"/>
+
+        <!-- head -->
+        <circle cx="120" cy="115" r="78" fill="#fff6f9" stroke="#f0c6d6" stroke-width="2"/>
+
+        <!-- ears -->
+        <g class="ear left">
+          <path d="M55 75 L40 15 L100 55 Z" fill="#ffd6e8" stroke="#f0aecb" stroke-width="2"/>
+          <path d="M60 68 L52 35 L88 58 Z" fill="#ffb6ce"/>
+        </g>
+        <g class="ear right">
+          <path d="M185 75 L200 15 L140 55 Z" fill="#ffd6e8" stroke="#f0aecb" stroke-width="2"/>
+          <path d="M180 68 L188 35 L152 58 Z" fill="#ffb6ce"/>
+        </g>
+
+        <!-- cheeks blush -->
+        <ellipse cx="72" cy="132" rx="14" ry="9" fill="#ffc2d1" opacity="0.7"/>
+        <ellipse cx="168" cy="132" rx="14" ry="9" fill="#ffc2d1" opacity="0.7"/>
+
+        <!-- eyes group: swaps per state -->
+        <g id="eyesNormal">
+          <g class="eye left">
+            <ellipse cx="92" cy="112" rx="12" ry="15" fill="#5b3a44"/>
+            <circle cx="96" cy="106" r="4" fill="#fff"/>
+          </g>
+          <g class="eye right">
+            <ellipse cx="148" cy="112" rx="12" ry="15" fill="#5b3a44"/>
+            <circle cx="152" cy="106" r="4" fill="#fff"/>
+          </g>
+        </g>
+
+        <g id="eyesSad" class="hidden">
+          <path d="M80 105 Q92 118 104 105" stroke="#5b3a44" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M136 105 Q148 118 160 105" stroke="#5b3a44" stroke-width="6" fill="none" stroke-linecap="round"/>
+        </g>
+
+        <g id="eyesPleading" class="hidden">
+          <ellipse cx="92" cy="108" rx="14" ry="17" fill="#5b3a44"/>
+          <circle cx="97" cy="99" r="5" fill="#fff"/>
+          <circle cx="88" cy="112" r="2.4" fill="#fff" opacity="0.8"/>
+          <ellipse cx="148" cy="108" rx="14" ry="17" fill="#5b3a44"/>
+          <circle cx="153" cy="99" r="5" fill="#fff"/>
+          <circle cx="144" cy="112" r="2.4" fill="#fff" opacity="0.8"/>
+        </g>
+
+        <g id="eyesHappy" class="hidden">
+          <path d="M78 110 Q92 92 106 110" stroke="#5b3a44" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <path d="M134 110 Q148 92 162 110" stroke="#5b3a44" stroke-width="7" fill="none" stroke-linecap="round"/>
+        </g>
+
+        <!-- sparkles for pleading stage -->
+        <g id="sparkles">
+          <path class="sparkle" id="spark1" d="M92 78 L96 88 L106 92 L96 96 L92 106 L88 96 L78 92 L88 88 Z" fill="#ffd08a"/>
+          <path class="sparkle" id="spark2" d="M150 82 L153 90 L161 93 L153 96 L150 104 L147 96 L139 93 L147 90 Z" fill="#ffd08a"/>
+        </g>
+
+        <!-- nose + mouth -->
+        <path d="M114 132 L126 132 L120 140 Z" fill="#ff9ebb"/>
+        <path id="mouthNormal" d="M120 140 Q120 148 108 148 M120 140 Q120 148 132 148" stroke="#5b3a44" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path id="mouthSad" class="hidden" d="M105 152 Q120 140 135 152" stroke="#5b3a44" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path id="mouthHappy" class="hidden" d="M100 142 Q120 165 140 142" stroke="#5b3a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+        <!-- whiskers -->
+        <g stroke="#e39ab3" stroke-width="2.5" stroke-linecap="round">
+          <path d="M40 120 Q20 116 5 120"/>
+          <path d="M40 130 Q20 132 6 138"/>
+          <path d="M200 120 Q220 116 235 120"/>
+          <path d="M200 130 Q220 132 234 138"/>
+        </g>
+
+        <!-- tears -->
+        <path class="tear" id="tearLeft" d="M86 128 Q80 138 86 146 Q92 138 86 128 Z" fill="#8ecbff"/>
+        <path class="tear" id="tearRight" d="M154 128 Q148 138 154 146 Q160 138 154 128 Z" fill="#8ecbff"/>
+
+        <!-- heart held by paws (visible in normal + celebration) -->
+        <g id="heldHeart">
+          <path d="M120 205 C110 190 85 192 85 212 C85 228 105 240 120 250 C135 240 155 228 155 212 C155 192 130 190 120 205 Z" fill="#ff6f91" transform="translate(0,-8) scale(0.55)" transform-origin="120 220"/>
+        </g>
+      </svg>
+    </div>
+
+    <h1 class="headline" id="headline">KC ke momos khane chalogi? 🥟❤️</h1>
+    <p class="sub" id="subtext"></p>
+
+    <div class="btn-row" id="btnRow">
+      <button class="big-btn" id="yesBtn">❤️ Yes</button>
+      <button class="big-btn" id="noBtn">🙈 No</button>
+    </div>
+
+    <div id="celebrationBlock" class="hidden">
+      <h1 class="celebrate-heading">YAYYY!! ❤️🥟</h1>
+      <p class="celebrate-sub">Let's go for Momos!! 🎉😻❤️</p>
+      <button class="music-btn" id="musicBtn">🎵 Play Music</button>
+    </div>
+
+  </div>
+
+  <footer class="tiny">made with 🐾 and a little bit of momos-fueled courage</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Ambient background canvas: hearts, paws, sparkles ---------- */
+  const bgCanvas = document.getElementById('bg-canvas');
+  const bgCtx = bgCanvas.getContext('2d');
+  let W, H;
+  function resize(){
+    W = bgCanvas.width = window.innerWidth;
+    H = bgCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const ambientParticles = [];
+  function makeAmbient(){
+    const types = ['heart', 'paw', 'sparkle'];
+    const t = types[Math.floor(Math.random()*types.length)];
+    ambientParticles.push({
+      type: t,
+      x: Math.random()*W,
+      y: H + 30,
+      size: 10 + Math.random()*16,
+      speed: 0.25 + Math.random()*0.5,
+      drift: (Math.random()-0.5)*0.6,
+      rot: Math.random()*360,
+      rotSpeed: (Math.random()-0.5)*0.6,
+      opacity: 0.15 + Math.random()*0.3
+    });
+  }
+  for(let i=0;i<18;i++){ makeAmbient(); ambientParticles[i].y = Math.random()*H; }
+
+  function drawHeart(ctx, x, y, size, opacity){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = '#ff9ebb';
+    ctx.beginPath();
+    ctx.moveTo(0, size*0.3);
+    ctx.bezierCurveTo(-size*0.5, -size*0.3, -size, size*0.2, 0, size);
+    ctx.bezierCurveTo(size, size*0.2, size*0.5, -size*0.3, 0, size*0.3);
+    ctx.fill();
+    ctx.restore();
+  }
+  function drawPaw(ctx, x, y, size, opacity, rot){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot*Math.PI/180);
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = '#c9a6d9';
+    ctx.beginPath();
+    ctx.ellipse(0, size*0.35, size*0.4, size*0.3, 0, 0, Math.PI*2);
+    ctx.fill();
+    const offs = [[-size*0.35,-size*0.15],[-size*0.13,-size*0.32],[size*0.13,-size*0.32],[size*0.35,-size*0.15]];
+    offs.forEach(o=>{
+      ctx.beginPath();
+      ctx.ellipse(o[0], o[1], size*0.14, size*0.18, 0, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+  function drawSparkle(ctx, x, y, size, opacity){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = '#ffd08a';
+    ctx.beginPath();
+    ctx.moveTo(0,-size); ctx.lineTo(size*0.25,-size*0.25); ctx.lineTo(size,0);
+    ctx.lineTo(size*0.25,size*0.25); ctx.lineTo(0,size); ctx.lineTo(-size*0.25,size*0.25);
+    ctx.lineTo(-size,0); ctx.lineTo(-size*0.25,-size*0.25);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  function ambientLoop(){
+    bgCtx.clearRect(0,0,W,H);
+    ambientParticles.forEach(p=>{
+      p.y -= p.speed;
+      p.x += p.drift;
+      p.rot += p.rotSpeed;
+      if(p.y < -30){ p.y = H+30; p.x = Math.random()*W; }
+      if(p.type==='heart') drawHeart(bgCtx, p.x, p.y, p.size, p.opacity);
+      else if(p.type==='paw') drawPaw(bgCtx, p.x, p.y, p.size, p.opacity, p.rot);
+      else drawSparkle(bgCtx, p.x, p.y, p.size*0.6, p.opacity);
+    });
+    requestAnimationFrame(ambientLoop);
+  }
+  ambientLoop();
+
+  /* ---------- Paw trail on mouse/touch move ---------- */
+  let lastTrail = 0;
+  function spawnPawTrail(x,y){
+    const now = performance.now();
+    if(now - lastTrail < 90) return;
+    lastTrail = now;
+    const el = document.createElement('div');
+    el.className = 'paw-trail';
+    el.textContent = '🐾';
+    el.style.left = (x-8) + 'px';
+    el.style.top = (y-8) + 'px';
+    el.style.setProperty('--rot', (Math.random()*60-30)+'deg');
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 950);
+  }
+  window.addEventListener('mousemove', e=> spawnPawTrail(e.clientX, e.clientY));
+  window.addEventListener('touchmove', e=>{
+    if(e.touches[0]) spawnPawTrail(e.touches[0].clientX, e.touches[0].clientY);
+  }, {passive:true});
+
+  /* ---------- Floating hearts (DOM, foreground) ---------- */
+  function spawnFloatingHeart(){
+    const el = document.createElement('div');
+    el.className = 'floating-heart';
+    el.textContent = ['❤️','💕','💗','🩷'][Math.floor(Math.random()*4)];
+    const size = 14 + Math.random()*20;
+    el.style.fontSize = size + 'px';
+    el.style.left = (Math.random()*100) + 'vw';
+    const duration = 6 + Math.random()*5;
+    el.style.animationDuration = duration + 's';
+    el.style.setProperty('--drift', (Math.random()*80-40)+'px');
+    el.style.setProperty('--spin', (Math.random()*60-30)+'deg');
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), duration*1000+200);
+  }
+  setInterval(spawnFloatingHeart, 700);
+
+  /* ---------- Simple WebAudio sound effects ---------- */
+  let audioCtx = null;
+  function getAudioCtx(){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function blip(freq, dur, type, gain){
+    try{
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      g.gain.value = gain || 0.05;
+      osc.connect(g); g.connect(ctx.destination);
+      const now = ctx.currentTime;
+      g.gain.setValueAtTime(g.gain.value, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      osc.start(now);
+      osc.stop(now + dur);
+    }catch(e){ /* audio unavailable, fail silently */ }
+  }
+  function sfxHover(){ blip(660, 0.08, 'sine', 0.03); }
+  function sfxNo(){ blip(300, 0.15, 'triangle', 0.05); blip(250,0.18,'triangle',0.04); }
+  function sfxMeow(){
+    // quick pitch-bend "meow" using two blips
+    blip(520, 0.12, 'sine', 0.05);
+    setTimeout(()=>blip(420, 0.16, 'sine', 0.045), 90);
+  }
+  function sfxYes(){ blip(523, 0.12, 'triangle', 0.05); setTimeout(()=>blip(659,0.14,'triangle',0.05),110); setTimeout(()=>blip(784,0.2,'triangle',0.05),220); }
+
+  /* ---------- Ambient music toggle (procedural, no external file) ---------- */
+  let musicPlaying = false;
+  let musicNodes = [];
+  function startMusic(){
+    const ctx = getAudioCtx();
+    const notes = [523.25, 587.33, 659.25, 587.33, 523.25, 659.25, 783.99, 659.25];
+    let i = 0;
+    const master = ctx.createGain();
+    master.gain.value = 0.045;
+    master.connect(ctx.destination);
+    const interval = setInterval(()=>{
+      if(!musicPlaying){ clearInterval(interval); return; }
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = notes[i % notes.length];
+      g.gain.value = 0.0001;
+      osc.connect(g); g.connect(master);
+      const now = ctx.currentTime;
+      g.gain.exponentialRampToValueAtTime(0.06, now+0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, now+0.5);
+      osc.start(now); osc.stop(now+0.55);
+      i++;
+    }, 420);
+    musicNodes.push({master, interval});
+  }
+  function stopMusic(){
+    musicNodes.forEach(n=>{ clearInterval(n.interval); try{n.master.disconnect();}catch(e){} });
+    musicNodes = [];
+  }
+  document.getElementById('musicBtn').addEventListener('click', function(){
+    musicPlaying = !musicPlaying;
+    if(musicPlaying){ startMusic(); this.textContent = '⏸ Pause Music'; }
+    else{ stopMusic(); this.textContent = '🎵 Play Music'; }
+  });
+
+  /* ---------- Core interaction logic ---------- */
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const btnRow = document.getElementById('btnRow');
+  const headline = document.getElementById('headline');
+  const subtext = document.getElementById('subtext');
+  const catWrap = document.getElementById('catWrap');
+  const celebrationBlock = document.getElementById('celebrationBlock');
+  const mainCard = document.getElementById('mainCard');
+
+  const eyesNormal = document.getElementById('eyesNormal');
+  const eyesSad = document.getElementById('eyesSad');
+  const eyesPleading = document.getElementById('eyesPleading');
+  const eyesHappy = document.getElementById('eyesHappy');
+  const mouthNormal = document.getElementById('mouthNormal');
+  const mouthSad = document.getElementById('mouthSad');
+  const mouthHappy = document.getElementById('mouthHappy');
+  const tearLeft = document.getElementById('tearLeft');
+  const tearRight = document.getElementById('tearRight');
+  const spark1 = document.getElementById('spark1');
+  const spark2 = document.getElementById('spark2');
+
+  function setFace(which){
+    [eyesNormal, eyesSad, eyesPleading, eyesHappy].forEach(g=>g.classList.add('hidden'));
+    [mouthNormal, mouthSad, mouthHappy].forEach(g=>g.classList.add('hidden'));
+    tearLeft.classList.remove('show');
+    tearRight.classList.remove('show');
+    spark1.classList.remove('show');
+    spark2.classList.remove('show');
+
+    if(which === 'normal'){
+      eyesNormal.classList.remove('hidden');
+      mouthNormal.classList.remove('hidden');
+    } else if(which === 'sad'){
+      eyesSad.classList.remove('hidden');
+      mouthSad.classList.remove('hidden');
+      tearLeft.classList.add('show');
+      tearRight.classList.add('show');
+    } else if(which === 'pleading'){
+      eyesPleading.classList.remove('hidden');
+      mouthSad.classList.remove('hidden');
+      spark1.classList.add('show');
+      spark2.classList.add('show');
+    } else if(which === 'happy'){
+      eyesHappy.classList.remove('hidden');
+      mouthHappy.classList.remove('hidden');
+    }
+  }
+
+  let noClickCount = 0;
+  let yesScale = 1;
+  const scaleSteps = [1, 1.1, 1.2, 1.35, 1.5, 1.7, 1.9, 2.1, 2.4];
+
+  yesBtn.addEventListener('mouseenter', sfxHover);
+  noBtn.addEventListener('mouseenter', function(){ if(noClickCount < 2) sfxHover(); });
+
+  function updateHeadline(text, sub){
+    headline.classList.add('fade-out');
+    setTimeout(()=>{
+      headline.textContent = text;
+      subtext.textContent = sub || '';
+      headline.classList.remove('fade-out');
+      headline.classList.add('fade-in');
+      setTimeout(()=>headline.classList.remove('fade-in'), 500);
+    }, 220);
+  }
+
+  noBtn.addEventListener('click', function(e){
+    noClickCount++;
+    sfxNo();
+    sfxMeow();
+
+    if(noClickCount === 1){
+      setFace('sad');
+      updateHeadline('Been too long. Chal rahe hain ❤️');
+    } else if(noClickCount === 2){
+      setFace('pleading');
+      updateHeadline('chal na yaar...');
+    } else {
+      // From 3rd click onward, button should already be evading;
+      // a genuine click at this point still nudges the message a little.
+      updateHeadline('chal na yaar... ❤️');
+      growYesButton();
+    }
+  });
+
+  function growYesButton(){
+    const idx = Math.min(noClickCount - 1, scaleSteps.length - 1);
+    yesScale = scaleSteps[idx];
+    yesBtn.style.transform = `scale(${yesScale})`;
+    yesBtn.style.fontSize = (1.05 + idx*0.06) + 'rem';
+  }
+
+  /* Evasive No button, from 3rd click onward */
+  function isEvasive(){ return noClickCount >= 2; } // becomes evasive once user is about to make 3rd click attempt
+
+  function moveNoButtonAwayFrom(clientX, clientY){
+    const rect = noBtn.getBoundingClientRect();
+    const rowRect = btnRow.getBoundingClientRect();
+    const cardRect = mainCard.getBoundingClientRect();
+
+    // Safe area: within the card, avoiding edges
+    const margin = 12;
+    const minX = cardRect.left + margin;
+    const maxX = cardRect.right - rect.width - margin;
+    const minY = cardRect.top + margin;
+    const maxY = cardRect.bottom - rect.height - margin;
+
+    let newX = minX + Math.random() * Math.max(1, (maxX - minX));
+    let newY = minY + Math.random() * Math.max(1, (maxY - minY));
+
+    // Make sure new position is far enough from cursor
+    let attempts = 0;
+    while(Math.hypot(newX - clientX, newY - clientY) < 120 && attempts < 8){
+      newX = minX + Math.random() * Math.max(1, (maxX - minX));
+      newY = minY + Math.random() * Math.max(1, (maxY - minY));
+      attempts++;
+    }
+
+    if(noBtn.classList.contains('static')){
+      noBtn.classList.remove('static');
+    }
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top = newY + 'px';
+  }
+
+  function initNoButtonPosition(){
+    const rect = noBtn.getBoundingClientRect();
+    noBtn.style.left = rect.left + 'px';
+    noBtn.style.top = rect.top + 'px';
+  }
+
+  function proximityCheck(clientX, clientY){
+    if(noClickCount < 2) return; // only evasive from the 3rd potential click onward
+    if(gameWon) return;
+    const rect = noBtn.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const dist = Math.hypot(clientX - cx, clientY - cy);
+    if(dist < 90){
+      moveNoButtonAwayFrom(clientX, clientY);
+      if(noClickCount < 9){
+        noClickCount++;
+        growYesButton();
+      }
+    }
+  }
+
+  window.addEventListener('mousemove', function(e){ proximityCheck(e.clientX, e.clientY); });
+  window.addEventListener('touchstart', function(e){
+    if(e.touches[0]) proximityCheck(e.touches[0].clientX, e.touches[0].clientY);
+  }, {passive:true});
+
+  let gameWon = false;
+
+  yesBtn.addEventListener('click', function(){
+    if(gameWon) return;
+    gameWon = true;
+    sfxYes();
+    triggerCelebration();
+  });
+
+  /* ---------- Celebration ---------- */
+  function triggerCelebration(){
+    btnRow.classList.add('fade-out');
+    setTimeout(()=>{
+      btnRow.classList.add('hidden');
+      headline.classList.add('hidden');
+      subtext.classList.add('hidden');
+      celebrationBlock.classList.remove('hidden');
+      celebrationBlock.classList.add('fade-in');
+    }, 300);
+
+    setFace('happy');
+    catWrap.classList.add('celebrating');
+
+    // Confetti burst
+    if(window.confetti){
+      const duration = 2600;
+      const end = Date.now() + duration;
+      const colors = ['#ff6f91', '#ffd08a', '#ffb6ce', '#e9defc'];
+      (function frame(){
+        confetti({ particleCount: 5, angle: 60, spread: 60, origin: {x:0}, colors });
+        confetti({ particleCount: 5, angle: 120, spread: 60, origin: {x:1}, colors });
+        confetti({ particleCount: 3, angle: 90, spread: 100, origin: {x: Math.random(), y: 0.3}, colors, shapes:['circle'] });
+        if(Date.now() < end) requestAnimationFrame(frame);
+      })();
+      confetti({ particleCount: 140, spread: 100, origin: {y:0.5}, colors });
+    }
+
+    // Fireworks + extra sparkle on fx canvas
+    launchFireworks();
+  }
+
+  /* ---------- Simple fireworks on fx-canvas ---------- */
+  const fxCanvas = document.getElementById('fx-canvas');
+  const fxCtx = fxCanvas.getContext('2d');
+  let fxW, fxH;
+  function fxResize(){ fxW = fxCanvas.width = window.innerWidth; fxH = fxCanvas.height = window.innerHeight; }
+  window.addEventListener('resize', fxResize);
+  fxResize();
+
+  let fireworkParticles = [];
+  let fireworksActive = false;
+
+  function spawnFirework(){
+    const x = Math.random()*fxW;
+    const y = fxH*0.2 + Math.random()*fxH*0.35;
+    const colors = ['#ff6f91','#ffd08a','#ffb6ce','#e9defc','#8ecbff'];
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    const count = 26;
+    for(let i=0;i<count;i++){
+      const angle = (Math.PI*2*i)/count;
+      const speed = 1.5 + Math.random()*2.5;
+      fireworkParticles.push({
+        x, y,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed,
+        life: 1,
+        color
+      });
+    }
+  }
+
+  function fireworksLoop(){
+    fxCtx.clearRect(0,0,fxW,fxH);
+    if(fireworksActive && Math.random() < 0.045){ spawnFirework(); }
+    fireworkParticles.forEach(p=>{
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.025;
+      p.life -= 0.014;
+    });
+    fireworkParticles = fireworkParticles.filter(p=>p.life > 0);
+    fireworkParticles.forEach(p=>{
+      fxCtx.globalAlpha = Math.max(p.life, 0);
+      fxCtx.fillStyle = p.color;
+      fxCtx.beginPath();
+      fxCtx.arc(p.x, p.y, 2.6, 0, Math.PI*2);
+      fxCtx.fill();
+    });
+    fxCtx.globalAlpha = 1;
+    requestAnimationFrame(fireworksLoop);
+  }
+  fireworksLoop();
+
+  function launchFireworks(){
+    fireworksActive = true;
+    setTimeout(()=>{ fireworksActive = false; }, 6500);
+  }
+
+  /* init */
+  initNoButtonPosition();
+  window.addEventListener('resize', initNoButtonPosition);
+})();
+</script>
 </body>
 </html>
